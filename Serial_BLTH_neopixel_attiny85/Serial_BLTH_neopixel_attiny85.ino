@@ -14,10 +14,10 @@ SoftwareSerial mySerial(rx, tx); //declare what pins are for softwareserial
 int incomingByte = 0; //mode selection
 int incomingByte2 = 0; //type of color (red, blue, etc)
 int incomingByte3 = 0; //brightness of ring
-int incomingByte4 = 0; //lower bound value of which neopixel to light
-int incomingByte5 = 0; //upper bound value of which neopixel to light
+int incomingByte4 = 0; //lower bound value of which neopixel to light (for specific neopixel lighting mode)
+int incomingByte5 = 0; //upper bound value of which neopixel to light (for specific neopixel lighting mode)
 int incomingByte6 = 0; //type of color
-int brightness = 0;
+int brightness = 0; 
 
 uint32_t red = ring.Color(255, 0, 0);  //making things easier by naming the specific colors
 uint32_t green = ring.Color(0, 255, 0);
@@ -31,61 +31,62 @@ uint32_t off = ring.Color(0, 0, 0);
 
 void setup() {
 
-  pinMode(PIN, OUTPUT);
-  pinMode(rx, INPUT);
-  pinMode(tx, OUTPUT);
-  mySerial.begin(9600);
+  pinMode(PIN, OUTPUT); //data pin for neopixels
+  pinMode(rx, INPUT);  //setting up pins for the softwareSerial
+  pinMode(tx, OUTPUT); //softwareSerial is needed for the Bluetooth SPP link
+  mySerial.begin(9600); //initialize serial port
   ring.show(); //do a ring.show at the beginning to clear the neopixels
 }
 
 void loop() {
-  char buffer[] = {' ', ' ', ' ', ' ', ' ', ' ', ' '}; 
-  while (!mySerial.available()); //if not available, read
+  char buffer[] = {' ', ' ', ' ', ' ', ' ', ' ', ' '}; //set a buffer for the data being sent to the attiny
+  while (!mySerial.available()); //if not available
   mySerial.readBytesUntil('\n', buffer, 7); //read what number is coming through (1,2,3, etc)
-  int incomingByte = atoi(buffer); //converts ascii to int
+  int incomingByte = atoi(buffer); //converts ascii to int (not needed, as we are sending just numbers)
   mySerial.println(incomingByte); //print to serial for debugging
 
-  switch (incomingByte){ //switch for first value
+  switch (incomingByte){ //switch for first value, determines the colour
 
   case 1: //case 1 handles the color setting
     {
       char buffer2[] = {' ',' ',' ',' ',' ',' ',' '}; //read value for type of color coming through
       while (!mySerial.available()); //same as above
-      mySerial.readBytesUntil('\n', buffer2, 7); //read until \n
-      incomingByte2 = atoi(buffer2); //again, ascii to int
+      mySerial.readBytesUntil('\n', buffer2, 7); //read until \n to signify the end of the data string
+      incomingByte2 = atoi(buffer2); //if 1 is sent, the colour setting is selected - the specific colour data (incomingByte2) is then sent
+                                  //into another switch statement
     }
 
     switch (incomingByte2){ //switch for second value, which is the type of color
 
     case 0: //lights up all pixels for the specified color
-      for (int i = 0; i < NumofPixels; i++){
+      for (int i = 0; i < NumofPixels; i++){ //light up all neopixels red
         ring.setPixelColor(i, red);
-        ring.show();
+        ring.show(); //update the strip (called a ring, but it's a strip
       }
       break;
 
-    case 1: 
+    case 1: //same as above,  but for green
       for (int i = 0; i < NumofPixels; i++){
         ring.setPixelColor(i, green);
         ring.show();
       }
       break;
 
-    case 2:
+    case 2: //all the same
       for (int i = 0; i < NumofPixels; i++){
         ring.setPixelColor(i, blue);
         ring.show();
       }
       break;
 
-    case 3:
+    case 3: //still the same...
       for (int i = 0; i < NumofPixels; i++){
         ring.setPixelColor(i, yellow);
         ring.show();
       }
       break;
 
-    case 4:
+    case 4: //well this is repetitive 
       for (int i = 0; i < NumofPixels; i++){
         ring.setPixelColor(i, cyan);
         ring.show();
