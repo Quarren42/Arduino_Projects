@@ -112,28 +112,28 @@ uint8_t startOver;
 /* ------------------------------------------ */
 /* END OF TV-B-GONE CODE */
 
-#include <Adafruit_NeoPixel.h>
+#include <Adafruit_NeoPixel.h> //including all necessary libraries
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
 
 
 int timeOffset = TIME_OFFSET;
 
-const int modeSelect = 4;
+const int modeSelect = 4; //setting pin numbers
 const int buttonLeft = 6;
 const int buttonRight = 5;
 
-Adafruit_NeoPixel ring = Adafruit_NeoPixel(12, 7, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel ring = Adafruit_NeoPixel(12, 7, NEO_GRB + NEO_KHZ800); //initialize neopixel ring
 
-SoftwareSerial mySerial(9, 8); 
-Adafruit_GPS GPS(&mySerial); 
+SoftwareSerial mySerial(9, 8); //initialize softwareSerial on pins 8 and 9, because the hardware serial port is being used for testing
+Adafruit_GPS GPS(&mySerial); //initialize the GPS
 
-#define GPSECHO  false
+#define GPSECHO  false //no GPS Echo
 
 boolean usingInterrupt = false;
 void useInterrupt(boolean);
 
-int currentHour;
+int currentHour; //initializing all variables
 int currentMinute;
 int currentSecond;
 
@@ -141,16 +141,16 @@ int oldCurrentHour;
 int oldCurrentMinute;
 int oldCurrentSecond;
 
-int ringBrightness = 21;
+int ringBrightness = 21; //ranges from 0 - 255, this is just the initial brightness
 int brightnessLED = 0;
 
-int mode = 0;
+int mode = 0; //mode selection integer
 
 int LEDoff = 0; //0 = LED's on, 1 = LED's off
 
 int regionState = REGION;
 
-uint32_t red = ring.Color(255, 0, 0);
+uint32_t red = ring.Color(255, 0, 0); //stating 8 bit colour values for the neopixel ring to make chanigng colours easier later on
 uint32_t green = ring.Color(0, 255, 0);
 uint32_t blue = ring.Color(0, 0, 255);
 uint32_t yellow = ring.Color(255, 255, 0);
@@ -171,7 +171,7 @@ void setup()
   TCCR2A = 0;
   TCCR2B = 0;
 
-  digitalWrite(LED, LOW);
+  digitalWrite(LED, LOW); 
   digitalWrite(IRLED, LOW);
   pinMode(LED, OUTPUT);
   pinMode(IRLED, OUTPUT);
@@ -194,21 +194,21 @@ void setup()
 
 
 
-  pinMode(modeSelect, INPUT_PULLUP);
+  pinMode(modeSelect, INPUT_PULLUP); //set inputs, buttons are pulled up to +5v to detect when they are grounded (switched on)
   pinMode(buttonLeft, INPUT_PULLUP);
   pinMode(buttonRight, INPUT_PULLUP);
 
-  ring.begin();
-  ring.setBrightness(ringBrightness);
-  ring.show();
-  Serial.begin(115200);
+  ring.begin(); //start neopixel ring
+  ring.setBrightness(ringBrightness); //set brightness of ring
+  ring.show(); //update neopixel ring
+  Serial.begin(115200); //initialize serial port for testing
   Serial.println("Adafruit GPS library basic test!");
 
-  GPS.begin(9600);
+  GPS.begin(9600); //start GPS
 
-  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA); //some GPS config stuff
 
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ); //more GPS config stuff
 
   useInterrupt(true);
 
@@ -241,63 +241,65 @@ void useInterrupt(boolean v) {
   }
 }
 
-uint32_t timer = millis();
+uint32_t timer = millis(); //end of GPS config stuff
+
 void loop()                 
 {
-  if(digitalRead(modeSelect) == LOW){
-    mode = (mode + 1) % 4;
-    for(int i = 0; i < 12; i++){
-      ring.setPixelColor(i, off);
-      ring.show();
+  if(digitalRead(modeSelect) == LOW){ //if modeSelect is pressed, then
+    mode = (mode + 1) % 4; //add one to the mode select integer, in modulo 4 (when the mode int = 4, it rolls back to 0)
+    for(int i = 0; i < 12; i++){ //turn off all neopixels
+      ring.setPixelColor(i, off); 
+      ring.show(); //update ring
     }
-    delay(420);
+    delay(420); //delay so only one button press is registered
   }
-  switch (mode){
-  case 0:
+  switch (mode){ //switch statement for the mode selection
+  case 0: //if case 0, start the clock mode
     modeClock();
     break;
 
-  case 1:
+  case 1: //if case 1, start the brightness config mode
     modeBrightness();
     break;
 
-  case 2:
+  case 2: //if case 2, start the flashlight mode
     modeFlashlight();
     break;
 
-  case 3:
+  case 3: //if  case 3, start the TV-B-GONE mode
     modeTVbGone();
     break;
   }
 }
-void modeFlashlight(){
-  screenOff();
-  for (int i = 0; i < 12; i ++){
+
+void modeFlashlight(){ //function for the flashlight mode
+  screenOff(); //check to see if left button is pressed to turn off the screen
+  for (int i = 0; i < 12; i ++){ //set all 12 neopixels to the designated flashlight colour
     ring.setPixelColor(i, FLASH_COLOUR);
   } 
-  ring.show();
+  ring.show(); //update neopixel ring
 }
 
-void modeBrightness(){
-  screenOff();
-  if (digitalRead(buttonRight) == LOW){
-    ringBrightness = (ringBrightness + 21) % 253;
-    brightnessLED = (brightnessLED + 1) % 12;
-    if (brightnessLED == 0){
-      for (int i = 1; i < 12; i ++){
+void modeBrightness(){ //function for the brightness select mode
+  screenOff(); //check to see if the left button has been pressed
+  if (digitalRead(buttonRight) == LOW){ //if the right button is pressed
+    ringBrightness = (ringBrightness + 21) % 253; //set the ring brightness 21 brighter, in modulo 253 (instead of 255, because math)
+    brightnessLED = (brightnessLED + 1) % 12; //turn on the following LED in the ring, in modulo 12
+    if (brightnessLED == 0){ //once all LEDs are lit, the next button press resets the brightness back to 21
+      for (int i = 1; i < 12; i ++){ //turn off all neopixels
         ring.setPixelColor(i, off);
       }
     }
     delay(200);
   }
-  ring.setBrightness(ringBrightness);
-  ring.setPixelColor(brightnessLED, red);
-  ring.show();
+  ring.setBrightness(ringBrightness); //set the ring brightness 
+  ring.setPixelColor(brightnessLED, red); //change the colour to red
+  ring.show(); //update the neopixel ring
 }
 
-void modeClock(){
-  screenOff();
-  if (! usingInterrupt) {
+void modeClock(){ //function for the clock mode
+  screenOff(); //check for the left button press to turn off the screen
+  if (! usingInterrupt) { //some GPS stuff
     char c = GPS.read();
     if (GPSECHO)
       if (c) Serial.print(c);
@@ -313,48 +315,48 @@ void modeClock(){
       return;  // we can fail to parse a sentence in which case we should just wait for another
   }
 
-  oldCurrentHour = currentHour;
+  oldCurrentHour = currentHour; //set the oldHour/Minute/Second values before we update to the new time
   oldCurrentMinute = currentMinute;
   oldCurrentSecond = currentSecond;
 
-  currentHour = (GPS.hour + timeOffset + 1) % 12; //set which pixel is on for hour/minute/second, chances 24 hour to 12 hour
-  currentMinute = GPS.minute / 5;
-  currentSecond = GPS.seconds / 5; 
+  currentHour = (GPS.hour + timeOffset + 1) % 12; //get the current hour by adding our timeOffset (time zones) to the current GMT time (GPS.hour)
+  currentMinute = GPS.minute / 5; //divide by 5 to change after 5 minutes, as there are 12 LEDs. We also add 1 above to correct for the neopixels being off by one
+  currentSecond = GPS.seconds / 5; //same^
 
-  if ((currentHour != oldCurrentHour) && ((currentHour - 1) != currentMinute || currentSecond)){ //set pixel behind new one off, to remove dupes
-    ring.setPixelColor(((currentHour + 11) % 12), off);
+  if ((currentHour != oldCurrentHour) && ((currentHour - 1) != currentMinute || currentSecond)){ //set pixel behind new one off, to remove duplicates (don't want the whole ring to fill up, just one LED at a time)
+    ring.setPixelColor(((currentHour + 11) % 12), off); //if the time has changed, and the Hour/Minute/Second LEDs don't overlap, turn the previous one off
   }
 
-  if ((currentMinute != oldCurrentMinute) && ((currentMinute - 1) != currentHour || currentSecond)){ //same^
+  if ((currentMinute != oldCurrentMinute) && ((currentMinute - 1) != currentHour || currentSecond)){ //same as above, but for the minutes
     ring.setPixelColor(((currentMinute + 11) % 12), off);
   }
 
-  if ((currentSecond != oldCurrentSecond) && ((currentSecond - 1) != currentHour || currentMinute)) { //same^
+  if ((currentSecond != oldCurrentSecond) && ((currentSecond - 1) != currentHour || currentMinute)) { //same as above, but for the seconds
     ring.setPixelColor(((currentSecond + 11) % 12), off);
   }
   
-  ring.setPixelColor((currentHour), red);
-  ring.setPixelColor(currentMinute, green);
-  ring.setPixelColor(currentSecond, blue);
+  ring.setPixelColor((currentHour), red); //set the hour LED red
+  ring.setPixelColor(currentMinute, green); //set the minute LED green
+  ring.setPixelColor(currentSecond, blue); //set the second LED blue
 
 
-  if (currentHour == currentMinute){
+  if (currentHour == currentMinute){ //if the red hour LED and the green minute LED overlap, change the colour to yellow (mix the colours)
     ring.setPixelColor(currentHour, yellow);
   }
-  if (currentMinute == currentSecond){
+  if (currentMinute == currentSecond){ //mix the overlapping colours
     ring.setPixelColor(currentMinute, cyan);
   }
-  if (currentSecond == currentHour){
+  if (currentSecond == currentHour){ //mix some more
     ring.setPixelColor(currentSecond, purple);
   }
-  if ((currentSecond == currentHour) && (currentSecond == currentMinute)){
+  if ((currentSecond == currentHour) && (currentSecond == currentMinute)){ //man I sure do love mixing 
     ring.setPixelColor(currentSecond, white);
   }
 
-  ring.show();
-  delay (100);
+  ring.show(); //update the neopixel ring
+  delay (100); //delay to free up some time on the Arduino
 
-  if (timer > millis())  timer = millis();
+  if (timer > millis())  timer = millis(); //just outputting all time info to the Serial port for debugging
   if (millis() - timer > 2000) { 
     timer = millis(); // reset the timer
     Serial.print("\nTime: ");
@@ -379,7 +381,7 @@ void modeClock(){
     Serial.println(currentMinute);
     Serial.println(currentSecond);
 
-    if (GPS.fix) {
+    if (GPS.fix) { //output the GPS fixation data to the serial port for debugging
       Serial.print("Location: ");
       Serial.print(GPS.latitude, 4); 
       Serial.print(GPS.lat);
@@ -399,47 +401,47 @@ void modeClock(){
     }
   }
 }
-void modeTVbGone(){
+void modeTVbGone(){ //function for the TV-B-GONE mode
   
-  if (digitalRead(buttonLeft) == LOW){
-    regionState = (regionState + 1) % 2;
-    delay(200);
+  if (digitalRead(buttonLeft) == LOW){ //if the left button is pressed, then change the region (different IR codes for different places)
+    regionState = (regionState + 1) % 2; //rollover the value at 2
+    delay(200); //delay to prevent multiple button presses being registered
   }
   
-  if (regionState == 0){
+  if (regionState == 0){ //if the region is 0, set it to North America
     region = NA;
-    num_codes = num_NAcodes;
-    ring.setPixelColor(5, blue);
+    num_codes = num_NAcodes; //set the IR codes to the NA ones
+    ring.setPixelColor(5, blue); //set the LEDs to red, white and blue to signify 'murica
     ring.setPixelColor(6, white);
     ring.setPixelColor(7, red);
   }
 
   else {
-    region = EU;
-    num_codes = num_EUcodes;
-    ring.setPixelColor(5, blue);
-    ring.setPixelColor(6, yellow);
-    ring.setPixelColor(7, blue);
+    region = EU; //else set the region to Europe
+    num_codes = num_EUcodes; //set the IR codes to the EU ones
+    ring.setPixelColor(5, blue); //set the LEDs to European colours
+    ring.setPixelColor(6, yellow); 
+    ring.setPixelColor(7, blue); //I may have had to ask google what the european colours were
   }
-  ring.show();
-  if (digitalRead(buttonRight) == LOW){
-    sendAllCodes();
+  ring.show(); //update neopixel ring
+  if (digitalRead(buttonRight) == LOW){ //if the right button is pressed, start transmitting the IR codes
+    sendAllCodes(); //wreck havoc :D :3 :D :3 :D :3
   }
 }
 
-void screenOff(){
-  if (digitalRead(buttonLeft) == LOW){
-    LEDoff = (LEDoff + 1) % 2;
+void screenOff(){ //function for turning the screen off to save power
+  if (digitalRead(buttonLeft) == LOW){ //if the left button is pressed
+    LEDoff = (LEDoff + 1) % 2; //rollover the LEDoff value
     delay(200);
   }
 
-  while (LEDoff == 1){
-    for (int i = 0; i < 12; i ++){
+  while (LEDoff == 1){ //WHILE the LEDoff value is 1
+    for (int i = 0; i < 12; i ++){ //constantly turn off all LEDs
       ring.setPixelColor(i, off);
-      ring.show();
-      if (digitalRead(buttonLeft) == LOW){
-        LEDoff = (LEDoff + 1) % 2;
-        delay(200);
+      ring.show(); //update the neopixel ring
+      if (digitalRead(buttonLeft) == LOW){ //within the WHILE loop, check if the button is pressed again
+        LEDoff = (LEDoff + 1) % 2; //if so, rollover the LEDoff value, to exit the LEDoff mode
+        delay(200); //delay to prevent duplicate button presses
       }
     }
   }   
