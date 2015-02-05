@@ -40,9 +40,9 @@ void setup() {
 
 void loop() {
   char buffer[] = {' ', ' ', ' ', ' ', ' ', ' ', ' '}; //set a buffer for the data being sent to the attiny
-  while (!mySerial.available()); //if not available
+  while (!mySerial.available()); //will only continue past this line if serial data is available; allows the data to fully load into the buffer
   mySerial.readBytesUntil('\n', buffer, 7); //read what number is coming through (1,2,3, etc)
-  int incomingByte = atoi(buffer); //converts ascii to int (not needed, as we are sending just numbers)
+  int incomingByte = atoi(buffer); //converts ascii buffer to integers
   mySerial.println(incomingByte); //print to serial for debugging
 
   switch (incomingByte){ //switch for first value, determines the colour
@@ -50,7 +50,7 @@ void loop() {
   case 1: //case 1 handles the color setting
     {
       char buffer2[] = {' ',' ',' ',' ',' ',' ',' '}; //read value for type of color coming through
-      while (!mySerial.available()); //same as above
+      while (!mySerial.available()); //will only continue if serial data is available
       mySerial.readBytesUntil('\n', buffer2, 7); //read until \n to signify the end of the data string
       incomingByte2 = atoi(buffer2); //if 1 is sent, the colour setting is selected - the specific colour data (incomingByte2) is then sent
                                   //into another switch statement
@@ -119,10 +119,10 @@ void loop() {
 
   case 2: //case 2 handles the brightness
     {
-      char buffer3[] = {' ', ' ', ' ', ' '}; 
-      while (!mySerial.available()); 
+      char buffer3[] = {' ', ' ', ' ', ' '}; //buffer for the incoming data
+      while (!mySerial.available()); //will only continue past this point if serial data is available
       mySerial.readBytesUntil('\n', buffer3, 4); //read until \n
-      incomingByte3 = atoi(buffer3); //ascii to int
+      incomingByte3 = atoi(buffer3); //ascii buffer to int
       ring.setBrightness(incomingByte3); //set brightness to whatever value the third incoming value was
       ring.show(); //update ring
     }
@@ -135,29 +135,29 @@ void loop() {
         char buffer5[] = {' ', ' ', ' ', ' '};
         char buffer6[] = {' ', ' ', ' ', ' '};
         
-          while (!mySerial.available()); 
+          while (!mySerial.available()); //waits for the next data to be available
       mySerial.readBytesUntil('\n', buffer4, 4); //read for the lower bound value of what pixel to light up
-       incomingByte4 = atoi(buffer4);
+       incomingByte4 = atoi(buffer4); //convert the buffer to an integer
        
-      while(!mySerial.available()); 
+      while(!mySerial.available()); //waits for more data to be available
       mySerial.readBytesUntil('\n', buffer5, 4); //read for the upper bound value of what pixel to light up
-      incomingByte5 = atoi(buffer5);
+      incomingByte5 = atoi(buffer5); //ascii buffer to integer
         
-        while (!mySerial.available());
+        while (!mySerial.available()); //same as above
         mySerial.readBytesUntil('\n', buffer6, 4); //read for what color to change to
-        incomingByte6 = atoi(buffer6);
+        incomingByte6 = atoi(buffer6); 
         
-        switch (incomingByte6){ //switch for second value, which is the type of color
+        switch (incomingByte6){ //switch for colour setting of the specific neopixel colouring mode
       
-     case 0: //lights up all pixels for the specified color
-      for (int i = incomingByte4; i <= incomingByte5; i++){ //make int i the values between the lower and upper bound numbers for each color
-        ring.setPixelColor(i, red);
-        ring.show();
+     case 0: //lights up all pixels for the specified color, which is red
+      for (int i = incomingByte4; i <= incomingByte5; i++){ //colours in the selected (lower bound to upper bound) neopixels
+        ring.setPixelColor(i, red); //set the colours to red
+        ring.show(); 
       }
       break;
 
     case 1: 
-      for (int i = incomingByte4; i <= incomingByte5; i++){ //same as case 0
+      for (int i = incomingByte4; i <= incomingByte5; i++){ //same as above
         ring.setPixelColor(i, green);
         ring.show();
       }
