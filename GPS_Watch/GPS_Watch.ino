@@ -401,6 +401,7 @@ void modeClock(){ //function for the clock mode
     }
   }
 }
+
 void modeTVbGone(){ //function for the TV-B-GONE mode
   
   if (digitalRead(buttonLeft) == LOW){ //if the left button is pressed, then change the region (different IR codes for different places)
