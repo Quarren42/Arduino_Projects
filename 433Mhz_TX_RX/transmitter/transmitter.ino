@@ -10,8 +10,9 @@
 
 #include <VirtualWire.h>
 
-const int led_pin = 7;
-const int transmit_pin = 3;
+const int led_pin = 3;
+const int transmit_pin = 5;
+const int IR_pin = 2;
 //const int receive_pin = 2;
 //const int transmit_en_pin = 6;
 
@@ -22,21 +23,30 @@ void setup()
   //  vw_set_ptt_inverted(true); // Required for DR3100
     vw_setup(4000);       // Bits per sec
     pinMode(led_pin, OUTPUT);
+    pinMode(IR_pin, INPUT);
+    Serial.begin(9600);
 }
 
 byte count = 1;
 
 void loop()
 {
-  char msg[7] = {'h','e','l','l','o',' ','#'};
-
-  msg[6] = count;
-  digitalWrite(led_pin, HIGH); // Flash a light to show transmitting
-  vw_send((uint8_t *)msg, 7);
+  char msg[2] = {'O','N'};
+  
+  if (digitalRead(IR_pin) == HIGH){
+    
+  digitalWrite(led_pin, LOW); // Flash a light to show transmitting
+  vw_send((uint8_t *)msg, 2);
   vw_wait_tx(); // Wait until the whole message is gone
-  digitalWrite(led_pin, LOW);
-  delay(1000);
-  count = count + 1;
+  Serial.println("ON");
+  digitalWrite(led_pin, HIGH);
   
-  
+  }
+  else {
+    char msg[3] = {'O','F','F'};
+    vw_send((uint8_t *)msg, 3);
+    vw_wait_tx();
+    Serial.println("OFF");
+    digitalWrite(led_pin, LOW);
+  }
 }

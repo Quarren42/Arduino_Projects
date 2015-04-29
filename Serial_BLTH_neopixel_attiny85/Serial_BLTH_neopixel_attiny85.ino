@@ -36,6 +36,11 @@ void setup() {
   pinMode(tx, OUTPUT); //softwareSerial is needed for the Bluetooth SPP link
   mySerial.begin(9600); //initialize serial port
   ring.show(); //do a ring.show at the beginning to clear the neopixels
+  
+  for (int i = 0; i < NumofPixels; i++){ //turn on LEDs white when first started up
+        ring.setPixelColor(i, white);
+        ring.show(); 
+      }
 }
 
 void loop() {
