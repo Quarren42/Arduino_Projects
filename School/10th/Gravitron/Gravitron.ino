@@ -22,6 +22,7 @@ void setup() {
   pinMode(button, INPUT_PULLUP);
   stopServo.attach(3);
   Serial.begin(9600);
+  stopServo.write(180);
 
 }
 
@@ -36,7 +37,7 @@ void loop() {
   }
   if (digitalRead(reedSwitch) == LOW && switchPrevOn == false){
     digitalWrite(LED, HIGH);
-    rotations += 0.5;
+    rotations += 1;
     rotationPeriod = millis() - startMillis;
     rotationPeriod /= 1000;
     startMillis = millis();
@@ -54,15 +55,19 @@ void loop() {
     switchPrevOn = false;
   }
 
-  if (rotationPeriod > 5){
+  if (rotationPeriod > 1.5 && millis() > 15000){
     stopServo.write(89); //write 89 because it jitters at 90
-   delay(15);
+    delay(15);
   }
- while (digitalRead(button) == LOW){
-  stopServo.write(0);
-  delay(15);
- } 
+  else {
+    stopServo.write(180);
+  }   
+  while (digitalRead(button) == LOW){
+    stopServo.write(180);
+    delay(15);
+  } 
 }
+
 
 
 
