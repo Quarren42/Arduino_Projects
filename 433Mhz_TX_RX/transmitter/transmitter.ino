@@ -11,7 +11,7 @@
 #include <VirtualWire.h>
 
 const int led_pin = 4;
-const int transmit_pin = 6;
+const int transmit_pin = 3;
 
 void setup()
 {
@@ -26,10 +26,6 @@ void setup()
 
 void loop()
 {
-  
-  uint8_t buf[VW_MAX_MESSAGE_LEN];
-  uint8_t buflen = VW_MAX_MESSAGE_LEN;
-
   char msg[2] = {'O','N'};
   
   digitalWrite(led_pin, HIGH); // Flash a light to show transmitting

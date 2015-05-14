@@ -10,7 +10,7 @@
 
 #include <VirtualWire.h>
 
-const int receive_pin = 4;
+const int receive_pin = 2;
 
 void setup()
 {
