@@ -15,7 +15,7 @@ void setup()
   pinMode(tx_button, INPUT_PULLUP);
 
   vw_setup(4000);       // Bits per sec
-  vw_rx_start();//
+  vw_rx_start();
   Serial.begin(9600);
 }
 
