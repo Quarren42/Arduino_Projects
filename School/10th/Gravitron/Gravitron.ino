@@ -55,7 +55,7 @@ void loop() {
     switchPrevOn = false;
   }
 
-  if (rotationPeriod > 1.5 && millis() > 15000){
+  if (rotationPeriod > 1.5 && millis() > 20000){
     stopServo.write(89); //write 89 because it jitters at 90
     delay(15);
   }
