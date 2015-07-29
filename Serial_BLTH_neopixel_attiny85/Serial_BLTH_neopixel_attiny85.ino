@@ -66,7 +66,7 @@ void loop() {
     case 0: //lights up all pixels for the specified color
       for (int i = 0; i < NumofPixels; i++){ //light up all neopixels red
         ring.setPixelColor(i, red);
-        ring.show(); //update the strip (called a ring, but it's a strip
+        ring.show(); //update the strip (called a ring, but it's a strip)
       }
       break;
 
