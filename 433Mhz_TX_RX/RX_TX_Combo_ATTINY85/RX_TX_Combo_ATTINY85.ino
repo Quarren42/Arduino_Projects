@@ -17,10 +17,10 @@ void setup()
   delay(1000);
   vw_set_tx_pin(transmit_pin);
   vw_set_rx_pin(receive_pin);
-  
+
   //pinMode(led_pin, OUTPUT);
   pinMode(tx_button, INPUT_PULLUP);
-  
+
   pinMode(tx, OUTPUT);
   pinMode(rx, INPUT);
 
@@ -31,36 +31,35 @@ void setup()
 
 void loop()
 {
-
+  char serialBuffer[] = {' ', ' ', ' '};
+  char radioBuffer[] = {' ', ' ', ' '};
+    
   uint8_t buf[VW_MAX_MESSAGE_LEN];
   uint8_t buflen = VW_MAX_MESSAGE_LEN;
 
-  char msg[4] = {'T','E', 'S', 'T'};
+  if (mySerial.available()){ 
+    mySerial.readBytesUntil('\n', serialBuffer, 3); //read what number is coming through (1,2,3, etc)
+    int incomingByte = atoi(serialBuffer);
+    String data = String(incomingByte, HEX);
+    data.toCharArray(radioBuffer, 3);
 
-  if (digitalRead(tx_button) == LOW){
+    vw_send((uint8_t *)radioBuffer, 3);
+    vw_wait_tx();
+  }
 
-   // digitalWrite(led_pin, HIGH); // Flash a light to show transmitting
-    vw_send((uint8_t *)msg, 4);
-    vw_wait_tx(); // Wait until the whole message is gone
-   // digitalWrite(led_pin, LOW);
-    delay(150);
+  if (vw_get_message(buf, &buflen)) // Non-blocking
+  {
+    mySerial.print("Got: ");
 
-  } 
-  else{
-
-    if (vw_get_message(buf, &buflen)) // Non-blocking
+    for (int i = 0; i < buflen; i++)
     {
-      mySerial.print("Got: ");
-
-      for (int i = 0; i < buflen; i++)
-      {
-        mySerial.print(buf[i], HEX);
-        mySerial.print(' ');
-      }
-      mySerial.println();
+      mySerial.print(buf[i], HEX);
+      mySerial.print(' ');
     }
+    mySerial.println();
   }
 }
+
 
 
 
