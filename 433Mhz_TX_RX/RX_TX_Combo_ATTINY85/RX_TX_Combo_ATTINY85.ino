@@ -31,23 +31,22 @@ void setup()
 
 void loop()
 {
-  char serialBuffer[] = {' ', ' ', ' '};
-  char radioBuffer[] = {' ', ' ', ' '};
+  char radioBuffer[] = {' ', ' '};
     
   uint8_t buf[VW_MAX_MESSAGE_LEN];
   uint8_t buflen = VW_MAX_MESSAGE_LEN;
-
+  
   if (mySerial.available()){ 
-    mySerial.readBytesUntil('\n', serialBuffer, 3); //read what number is coming through (1,2,3, etc)
-    int incomingByte = atoi(serialBuffer);
-    String data = String(incomingByte, HEX);
-    data.toCharArray(radioBuffer, 3);
-
-    vw_send((uint8_t *)radioBuffer, 3);
+    //mySerial.println("A");
+    mySerial.readBytesUntil('\n', radioBuffer, 2); //read what number is coming through (1,2,3, etc)
+    int incomingByte = atoi(radioBuffer);
+    vw_send((uint8_t *)incomingByte, 2);
     vw_wait_tx();
+    mySerial.println(incomingByte);
+  
   }
-
-  if (vw_get_message(buf, &buflen)) // Non-blocking
+  
+  else if (vw_get_message(buf, &buflen)) // Non-blocking
   {
     mySerial.print("Got: ");
 

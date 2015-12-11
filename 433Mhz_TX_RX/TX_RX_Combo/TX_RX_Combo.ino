@@ -21,13 +21,25 @@ void setup()
 
 void loop()
 {
-
   uint8_t buf[VW_MAX_MESSAGE_LEN];
   uint8_t buflen = VW_MAX_MESSAGE_LEN;
 
   char msg[2] = {'O','N'};
+ 
+ char serialBuffer[] = {' ', ' '};
+  char radioBuffer[] = {' ', ' '};
+  
+  if (Serial.available()){ 
+    
+    Serial.readBytesUntil('\n', radioBuffer, 2); //read what number is coming through (1,2,3, etc)
+    int incomingByte = atoi(serialBuffer);
+    vw_send((uint8_t *)incomingByte, 2);
+    digitalWrite(led_pin, HIGH);
+    vw_wait_tx();
+    digitalWrite(led_pin, LOW);
+  }
 
-  if (digitalRead(tx_button) == LOW){
+ if (digitalRead(tx_button) == LOW){
 
     digitalWrite(led_pin, HIGH); // Flash a light to show transmitting
     vw_send((uint8_t *)msg, 2);
@@ -36,6 +48,8 @@ void loop()
     delay(150);
 
   } 
+  
+  
   else{
 
     if (vw_get_message(buf, &buflen)) // Non-blocking
