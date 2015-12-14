@@ -25,15 +25,14 @@ void loop()
   uint8_t buflen = VW_MAX_MESSAGE_LEN;
 
   char msg[2] = {'O','N'};
- 
- char serialBuffer[] = {' ', ' '};
-  char radioBuffer[] = {' ', ' '};
+  
+  char radioBuffer[] = {' '};
+  char serialBuffer[] = {' '};
   
   if (Serial.available()){ 
     
-    Serial.readBytesUntil('\n', radioBuffer, 2); //read what number is coming through (1,2,3, etc)
-    int incomingByte = atoi(serialBuffer);
-    vw_send((uint8_t *)incomingByte, 2);
+    Serial.readBytesUntil('\n', radioBuffer, 1); //read what number is coming through (1,2,3, etc)
+    vw_send((uint8_t *)radioBuffer, 1);
     digitalWrite(led_pin, HIGH);
     vw_wait_tx();
     digitalWrite(led_pin, LOW);
@@ -42,7 +41,7 @@ void loop()
  if (digitalRead(tx_button) == LOW){
 
     digitalWrite(led_pin, HIGH); // Flash a light to show transmitting
-    vw_send((uint8_t *)msg, 2);
+    vw_send((uint8_t *)msg, 1);
     vw_wait_tx(); // Wait until the whole message is gone
     digitalWrite(led_pin, LOW);
     delay(150);
@@ -54,12 +53,10 @@ void loop()
 
     if (vw_get_message(buf, &buflen)) // Non-blocking
     {
-      Serial.print("Got: ");
-
       for (int i = 0; i < buflen; i++)
       {
-        Serial.print(buf[i], HEX);
-        Serial.print(' ');
+       serialBuffer[i] = buf[i];
+        Serial.print(serialBuffer[i]);
       }
       Serial.println();
     }
