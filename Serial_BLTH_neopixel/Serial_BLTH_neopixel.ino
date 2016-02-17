@@ -1,5 +1,8 @@
 #include <Adafruit_NeoPixel.h>
 Adafruit_NeoPixel ring = Adafruit_NeoPixel(16, 7);
+Adafruit_NeoPixel left = Adafruit_NeoPixel(6, 2);
+Adafruit_NeoPixel right = Adafruit_NeoPixel(6, 3);
+Adafruit_NeoPixel tail = Adafruit_NeoPixel(7, 4);
 
 int incomingByte = 0;
 int incomingByte2 = 0;
@@ -19,10 +22,25 @@ uint32_t off = ring.Color(0, 0, 0);
 void setup() {
 
   pinMode(7, OUTPUT);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
   Serial.begin(9600);
   ring.show();
+  
+  for (int i = 0; i < 7; i++){
+    tail.setPixelColor(i, 255, 0, 0);
+    left.setPixelColor(i, 255, 255, 255);
+    right.setPixelColor(i, 255, 255, 255);
 }
+tail.setBrightness(0);
+left.setBrightness(0);
+right.setBrightness(0);
+tail.show();
+left.show();
+right.show();
 
+}
 void loop() {
   char buffer[] = {' ', ' ', ' ', ' ', ' ', ' ', ' '};
   while (!Serial.available());
@@ -114,9 +132,6 @@ void loop() {
     }
     break;
   }
-
-
-
 }
 
 
