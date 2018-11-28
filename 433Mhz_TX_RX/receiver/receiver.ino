@@ -10,11 +10,10 @@
 
 #include <VirtualWire.h>
 
-const int receive_pin = 2;
+const int receive_pin = 8;
 
 void setup()
 {
-  delay(1000);
   Serial.begin(9600);	// Debugging only
   Serial.println("setup");
   vw_set_rx_pin(receive_pin);
@@ -27,16 +26,9 @@ void loop()
   uint8_t buf[VW_MAX_MESSAGE_LEN];
   uint8_t buflen = VW_MAX_MESSAGE_LEN;
 
-  if (vw_get_message(buf, &buflen)) // Non-blocking
+  if (digitalRead(receive_pin) == LOW)
   {
-    Serial.print("Got: ");
-
-    for (int i = 0; i < buflen; i++)
-    {
-      Serial.print(buf[i], HEX);
-      Serial.print(' ');
-    }
-    Serial.println();
+    Serial.println("HIGH");
   }
 }
 

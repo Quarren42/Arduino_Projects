@@ -15,7 +15,7 @@ for more tutorials!
 // Digital pin #2 is the same as Pin D2 see
 // http://arduino.cc/en/Hacking/PinMapping168 for the 'raw' pin mapping
 #define IRpin_PIN PIND
-#define IRpin 2
+#define IRpin 3
 // for MEGA use these!
 //#define IRpin_PIN PINE
 //#define IRpin 4
